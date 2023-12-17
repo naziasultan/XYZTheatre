@@ -12,3 +12,9 @@
     password=password
 
 5- All Appi should work except the http://localhost:8080/api/movies?title=A as there no elastic-search implemented 
+
+6- Entity Diagram is aded as EntityManager.png, it is not complete but based on the coding solution solution
+
+7- xyz.png image is added for Java Class diagram based on the solution
+
+8- UseCase diagram added as UseCaseDiagram.png for all possible scenario for Theatre.
