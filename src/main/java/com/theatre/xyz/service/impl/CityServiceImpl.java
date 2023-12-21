@@ -19,7 +19,7 @@ public class CityServiceImpl implements CityService {
     }
 
 
-    public City addCity(City city) {
-        return cityRepository.saveAndFlush(city);
+    public List<City> addCities(List<City> cities) {
+        return cityRepository.saveAllAndFlush(cities);
     }
 }

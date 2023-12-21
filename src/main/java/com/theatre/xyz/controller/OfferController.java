@@ -4,6 +4,7 @@ import com.theatre.xyz.model.Offer;
 import com.theatre.xyz.service.OfferService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.mvel2.MVEL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,8 +32,6 @@ public class OfferController {
         return new ResponseEntity<>(offers, HttpStatus.OK);
     }
 
-    // Other endpoints can be added based on requirements
-
     @GetMapping("/applyDiscount/{totalTickets}/{pricePerTicket}")
     public ResponseEntity<Double> applyDiscount(@PathVariable int totalTickets, @PathVariable double pricePerTicket) {
         // Assume the offer with priority 1 is the 50% discount on the 3rd ticket
@@ -45,10 +44,25 @@ public class OfferController {
 
         if (thirdTicketDiscountOffer.isPresent() && totalTickets >= 3) {
             int discountedTickets = totalTickets / 3;
-            double discountAmount = discountedTickets * 0.5 * pricePerTicket;
-            totalAmount -= discountAmount;
-        }
 
+            // Use placeholders in the formula
+            String formula = thirdTicketDiscountOffer.get().getFormula()
+                    .replace("discountedTickets", String.valueOf(discountedTickets))
+                    .replace("pricePerTicket", String.valueOf(pricePerTicket));
+
+            log.info("Formula {}", formula);
+
+            try {
+                // Evaluate the expression
+                double discountAmount = (double) MVEL.eval(formula);
+
+                totalAmount -= discountAmount;
+            } catch (Exception e) {
+                // Handle expression evaluation exceptions
+                log.error("Error evaluating formula: {}", e.getMessage());
+            }
+
+        }
         return new ResponseEntity<>(totalAmount, HttpStatus.OK);
     }
 
@@ -59,12 +73,18 @@ public class OfferController {
                 .stream()
                 .filter(offer -> offer.getPriority() == 2)
                 .findFirst();
-
+        // Apply the dynamic offer using a lambda function or update the formula in the database
         if (afternoonShowDiscountOffer.isPresent()) {
-            // Apply the dynamic offer using a lambda function or update the formula in the database
-            totalAmount = totalAmount * 0.8; // 20% discount
+            //This should be converted to totalAmount = totalAmount * 0.8; // 20% discount
+            String formula = afternoonShowDiscountOffer.get().getFormula().replaceAll("totalAmount", String.valueOf(totalAmount));
+            // Evaluate the expression
+            totalAmount = (double) MVEL.eval(formula);
+            log.info("Formula {}", formula);
+
         }
 
         return new ResponseEntity<>(totalAmount, HttpStatus.OK);
     }
+
+
 }

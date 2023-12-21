@@ -19,9 +19,9 @@ public class CityController {
     private final CityService cityService;
 
     @PostMapping("/city")
-    public ResponseEntity<City> addCity(@RequestBody City city) {
+    public ResponseEntity<List<City>> addCity(@RequestBody List<City> cities) {
         // You may want to add validation logic here before adding the movie
-        City addedCity = cityService.addCity(city);
+        List<City> addedCity = cityService.addCities(cities);
         return new ResponseEntity<>(addedCity, HttpStatus.CREATED);
     }
 
